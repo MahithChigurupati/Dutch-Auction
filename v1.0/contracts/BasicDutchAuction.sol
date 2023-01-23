@@ -16,17 +16,52 @@ pragma solidity ^0.8.9;
 //  6. The first bid processed by the contract that sends wei greater than or equal to the current price is the  winner. The wei should be transferred immediately to the seller and the contract should not accept  any more bids. All bids besides the winning bid should be refunded immediately.
 
 contract BasicDutchAuction {
-    uint256 public reservePrice;
+    uint256 private reservePrice;
     uint256 private numBlocksAuctionOpen;
     uint256 private offerPriceDecrement;
 
-    constructor(){
-        //address seller = msg.sender;
-        //address owner = seller;
+    address public buyer;
+    address public seller;
+    address private owner;
+
+    uint256 private initBlock;
+    uint256 private initialPrice;
+
+    constructor(uint basePrice, uint256 tenure, uint decrement){
+
+        owner = payable(msg.sender);
+        seller = owner;
+        initBlock = block.number;
+
+        reservePrice = basePrice;
+        numBlocksAuctionOpen = tenure;
+        offerPriceDecrement = decrement;
+
+        initialPrice = reservePrice + (numBlocksAuctionOpen * offerPriceDecrement);
     }
 
-    function bid() public pure returns(bool){
-        //
-        return true;
+    function currentBlock() view private returns(uint256){
+        return block.number;
+    }
+
+    function blockDifference() view private returns(uint256){
+        return currentBlock() - initBlock;
+    }
+
+    function currentPrice() view public returns(uint256){
+        return initialPrice - (blockDifference() * offerPriceDecrement);
+    }
+
+    function bid() public payable {
+        require(buyer == address(0), "Product already sold");
+
+        require(blockDifference() <= numBlocksAuctionOpen, "Auction is closed");
+
+        require(msg.value == currentPrice(),"WEI is insufficient");
+
+        (bool tryToSend, ) = owner.call{value:msg.value}("");
+        require(tryToSend == true, "failed to send");
+        buyer = msg.sender;
+        owner = buyer;
     }
 }

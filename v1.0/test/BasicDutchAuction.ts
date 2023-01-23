@@ -4,23 +4,21 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 
 describe("BasicDutchAuction", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshot in every test.
-  async function deployDutchAuctionFixture() {
+  async function deployBasicDutchAuctionFixture() {
 
     // Contracts are deployed using the first signer/account by default
     const [owner, otherAccount] = await ethers.getSigners();
 
-    const BasicDutchAuction = await ethers.getContractFactory("DutchAuction");
-    const basicDutchAuction = await BasicDutchAuction.deploy("xyz");
+    const BasicDutchAuctionFactory = await ethers.getContractFactory("BasicDutchAuction");
+    const basicDutchAuction = await BasicDutchAuctionFactory.deploy();
 
     return { basicDutchAuction, owner, otherAccount };
   }
 
-  describe("Deployment", function () {
+  describe("BasicDutchAuction Deployment", function () {
+
     it("Should set the right unlockTime", async function () {
-      const { basicDutchAuction } = await loadFixture(deployDutchAuctionFixture);
+      const { basicDutchAuction, owner } = await loadFixture(deployBasicDutchAuctionFixture);
 
       expect(await basicDutchAuction.x()).to.equal("x");
 
