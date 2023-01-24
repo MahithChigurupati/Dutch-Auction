@@ -10,7 +10,7 @@ describe("BasicDutchAuction", function () {
     const [owner, otherAccount] = await ethers.getSigners();
 
     const BasicDutchAuctionFactory = await ethers.getContractFactory("BasicDutchAuction");
-    const basicDutchAuction = await BasicDutchAuctionFactory.deploy();
+    const basicDutchAuction = await BasicDutchAuctionFactory.deploy(10000000000000000000,10,1000000000000000000);
 
     return { basicDutchAuction, owner, otherAccount };
   }
@@ -20,7 +20,7 @@ describe("BasicDutchAuction", function () {
     it("Should set the right unlockTime", async function () {
       const { basicDutchAuction, owner } = await loadFixture(deployBasicDutchAuctionFixture);
 
-      expect(await basicDutchAuction.x()).to.equal("x");
+      expect(await basicDutchAuction.currentPrice()).to.equal(10000000000000000000 +(10 * 1000000000000000000));
 
     });
   });
