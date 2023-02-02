@@ -73,11 +73,6 @@ contract BasicDutchAuction {
         return initialPrice - (blockDifference() * offerPriceDecrement);
     }
 
-    //refund the extra amount sent by the buyer
-    function refund() private{
-        payable(buyer).transfer(msg.value - currentPrice());
-    }
-
     //finalizing the auction status
     function finalize(address bidder) private{
         buyer = bidder;
@@ -96,7 +91,7 @@ contract BasicDutchAuction {
      * check if the amount sent by bidder is equal to current price
      * make a transfer to seller or revert the transaction if fails
     */
-    function bid() public payable {
+    function bid() public payable returns(address) {
 
         //checking the block limit set by the seller to see if Auction is still open
         require(isAuctionOpen(), "Auction is closed");
@@ -113,10 +108,6 @@ contract BasicDutchAuction {
         //condition to check if bidder sent the right amount that matches the current price of the item sold
         require(msg.value >= currentPrice(),"WEI is insufficient");
 
-        if(msg.value >= currentPrice()){
-            refund();
-        }
-
         //transferring amount to seller only after checking Auction is still open, product is in market and required amount is sent by bidder
         //reverting the transaction if any of the above mentioned conditions isn't met or failure in transfer to seller
         (bool tryToSend, ) = owner.call{ value: currentPrice() }("");
@@ -124,6 +115,7 @@ contract BasicDutchAuction {
 
         //finalizing the auction
         finalize(msg.sender);
+        return buyer;
     }
 }
 

@@ -1,8 +1,6 @@
-import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+import { loadFixture, mine } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { BigNumber } from "@ethersproject/bignumber";
 
 describe("BasicDutchAuction", function () {
   async function deployBasicDutchAuctionFixture() {
@@ -26,14 +24,14 @@ describe("BasicDutchAuction", function () {
     });
 
     it("Product is still available for bid", async function () {
-      const { basicDutchAuction, owner } = await loadFixture(deployBasicDutchAuctionFixture);
+      const { basicDutchAuction } = await loadFixture(deployBasicDutchAuctionFixture);
 
       expect(await basicDutchAuction.buyer()).to.equal(ethers.constants.AddressZero);
 
     });
 
     it("Auction Status is Open", async function () {
-      const { basicDutchAuction, owner } = await loadFixture(deployBasicDutchAuctionFixture);
+      const { basicDutchAuction } = await loadFixture(deployBasicDutchAuctionFixture);
 
       expect(await basicDutchAuction.auctionStatusOpen()).to.equal(true);
 
@@ -41,7 +39,7 @@ describe("BasicDutchAuction", function () {
 
 
     it("Number of rounds", async function () {
-      const { basicDutchAuction, owner } = await loadFixture(deployBasicDutchAuctionFixture);
+      const { basicDutchAuction } = await loadFixture(deployBasicDutchAuctionFixture);
       const hashOfTx = basicDutchAuction.deployTransaction.hash;
       const initBlock = (await basicDutchAuction.provider.getTransactionReceipt(hashOfTx)).blockNumber;
       const currentBlock = await ethers.provider.getBlockNumber();
@@ -49,6 +47,12 @@ describe("BasicDutchAuction", function () {
 
     });
 
+    it("Wei is insufficient", async function () {
+      const { basicDutchAuction, otherAccount } = await loadFixture(deployBasicDutchAuctionFixture);
+
+      expect( basicDutchAuction.connect(otherAccount).bid({value:10})).to.be.revertedWith("WEI is insufficient");
+
+    });
 
     it("Successful Bid and wallet balance checks", async function () {
       const { basicDutchAuction, owner, otherAccount } = await loadFixture(deployBasicDutchAuctionFixture);
@@ -61,6 +65,7 @@ describe("BasicDutchAuction", function () {
 
       expect(await basicDutchAuction.connect(owner).buyer()).to.equal(otherAccount.address);
       expect(ownerBalanceAfter.sub(ownerBalanceBefore).toNumber()).to.equal(await basicDutchAuction.currentPrice());
+      expect(await basicDutchAuction.auctionStatusOpen()).to.equal(false)
 
     });
 
@@ -72,9 +77,18 @@ describe("BasicDutchAuction", function () {
     });
 
     it("failure Bid as item is already sold", async function () {
-      const { basicDutchAuction, owner, otherAccount2 } = await loadFixture(deployBasicDutchAuctionFixture);
+      const { basicDutchAuction, otherAccount2 } = await loadFixture(deployBasicDutchAuctionFixture);
 
       expect(await basicDutchAuction.connect(otherAccount2).bid({value: 100000})).to.be.revertedWith("Product already sold");
+    });
+
+    it("Block passed - Auction closed", async function () {
+      const { basicDutchAuction, otherAccount } = await loadFixture(deployBasicDutchAuctionFixture);
+
+      await mine(100);
+
+      expect( basicDutchAuction.connect(otherAccount).bid({value:10})).to.be.revertedWith("Auction is closed");
+
     });
 
   });
