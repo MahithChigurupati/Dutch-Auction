@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
-
 /**
 * @title NFT Dutch Auction Smart Contract
 * @author SaiMahith Chigurupati
@@ -19,11 +16,31 @@ pragma solidity ^0.8.9;
 * Write test cases to thoroughly test your contracts. Generate a Solidity coverage report and commit it to your repository under this version’s directory.
 */
 
-contract NFTDutchAuction{
+// SPDX-License-Identifier: MIT
 
+pragma solidity ^0.8.9;
 
-    constructor(address erc721TokenAddress, uint256 _nftTokenId, uint256 _reservePrice, uint256 _numBlocksAuctionOpen, uint256 _offerPriceDecrement){
+import "@openzeppelin/contracts/token/ERC721/ERC721Full.sol";
+
+contract NFTDutchAuction is ERC721 {
+
+    address nftAddress;
+    uint256 nftId;
+    uint256 reservePrice;
+    uint256 numBlocksAuctionOpen;
+    uint256 offerPriceDecrement;
+
+    constructor(address erc721TokenAddress,
+        uint256 _nftTokenId, uint256 _reservePrice,
+        uint256 _numBlocksAuctionOpen, uint256 _offerPriceDecrement){
+
+        nftAddress = erc721TokenAddress;
+        nftId = _nftTokenId;
+        reservePrice = _reservePrice;
+        numBlocksAuctionOpen = _numBlocksAuctionOpen;
+        offerPriceDecrement = _offerPriceDecrement;
 
     }
+
 
 }
