@@ -1,27 +1,102 @@
-import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+import {  loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
 describe("NFTDutchAuction", function () {
-  async function deployBasicDutchAuctionFixture() {
+  async function deployNFTDutchAuctionFixture() {
 
-    // Contracts are deployed using the first signer/account by default
     const [owner, otherAccount, otherAccount2] = await ethers.getSigners();
 
-    const NFTDutchAuctionFactory = await ethers.getContractFactory("BasicDutchAuction");
-    const nftDutchAuctionFactory = await NFTDutchAuctionFactory.deploy(100,10,10);
+    const NFTDutchAuctionFactory = await ethers.getContractFactory("NFTDutchAuction");
+    const nftDutchAuctionFactory = await NFTDutchAuctionFactory.connect(owner).deploy("",1,100,10,10);
 
     return { nftDutchAuctionFactory, owner, otherAccount, otherAccount2 };
   }
 
-  describe("BasicDutchAuction Deployment", function () {
+  describe("NFTDutchAuction Deployment", function() {
 
-    it('Check seller is owner', async function () {
+    it('check If seller is owner', async function () {
 
-      const { nftDutchAuctionFactory, owner } = await loadFixture(deployBasicDutchAuctionFixture);
+      const { nftDutchAuctionFactory, owner } = await loadFixture(deployNFTDutchAuctionFixture);
       expect(await nftDutchAuctionFactory.seller()).to.equal(owner.address);
 
     });
+
+    it('check If seller is owner', async function () {
+
+      const { nftDutchAuctionFactory, owner } = await loadFixture(deployNFTDutchAuctionFixture);
+      expect(await nftDutchAuctionFactory.seller()).to.equal(owner.address);
+
+    });
+
+    it('Seller is not allowed to Bid', async function () {
+
+      const { nftDutchAuctionFactory, owner } = await loadFixture(deployNFTDutchAuctionFixture);
+      expect(await nftDutchAuctionFactory.connect(owner.address).bid()).to.be.revertedWith("Owner can't Bid");
+
+    });
+
+    it('Wei is insufficient', async function () {
+
+      const { nftDutchAuctionFactory, owner } = await loadFixture(deployNFTDutchAuctionFixture);
+      expect(await nftDutchAuctionFactory.connect(owner.address).bid({value: 10})).to.be.revertedWith("WEI is insufficient");
+
+    });
+
+    it('Seller is not allowed to Bid', async function () {
+
+      const { nftDutchAuctionFactory, owner } = await loadFixture(deployNFTDutchAuctionFixture);
+      expect(await nftDutchAuctionFactory.connect(owner.address).bid()).to.be.revertedWith("Owner can't Bid");
+
+    });
+
+    it('Successful Bid', async function () {
+
+      const { nftDutchAuctionFactory, otherAccount } = await loadFixture(deployNFTDutchAuctionFixture);
+      await nftDutchAuctionFactory.connect(otherAccount).bid({value: 250});
+      expect(nftDutchAuctionFactory.buyer()).to.equal(otherAccount.address);
+
+    });
+
+    // it('Check Balances', async function () {
+    //
+    //   const { nftDutchAuctionFactory,owner ,otherAccount } = await loadFixture(deployNFTDutchAuctionFixture);
+    //   const ownerBalanceBefore = await owner.getBalance();
+    //   const otherAccountBalanceBefore = await otherAccount.getBalance();
+    //   await nftDutchAuctionFactory.connect(otherAccount).bid({value: 250})
+    //   const ownerBalanceAfter = await owner.getBalance();
+    //   const otherAccountBalanceAfter = await otherAccount.getBalance();
+    //   const price = await nftDutchAuctionFactory.currentPrice();
+    //   expect(ownerBalanceBefore ).to.equal(ownerBalanceAfter);
+    //   expect(await nftDutchAuctionFactory.connect(otherAccount).bid({value: 250})).to.be.revertedWith("You already bought this product");
+    //
+    // });
+
+
+    it('You already bought this product', async function () {
+
+      const { nftDutchAuctionFactory, otherAccount } = await loadFixture(deployNFTDutchAuctionFixture);
+
+      expect(await nftDutchAuctionFactory.connect(otherAccount).bid({value: 250})).to.be.revertedWith("You already bought this product");
+
+    });
+
+    it('Product already sold', async function () {
+
+      const { nftDutchAuctionFactory, otherAccount2 } = await loadFixture(deployNFTDutchAuctionFixture);
+
+      expect(await nftDutchAuctionFactory.connect(otherAccount2).bid({value: 250})).to.be.revertedWith("Product already sold");
+
+    });
+
+    it('Auction is closed', async function () {
+
+      const { nftDutchAuctionFactory, otherAccount2 } = await loadFixture(deployNFTDutchAuctionFixture);
+
+      expect(await nftDutchAuctionFactory.auctionStatusOpen()).to.false;
+
+    });
+
+
   });
 });
