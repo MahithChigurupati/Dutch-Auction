@@ -1,5 +1,5 @@
 /**
-* @title: NFT Dutch Auction Smart Contract
+* @title NFT Dutch Auction Smart Contract
 * @author SaiMahith Chigurupati
 * Note: Version 2.0
 * Create a new directory in your Github repo called v2.0 and initialize a new hardhat project.
@@ -20,9 +20,6 @@
 
 pragma solidity ^0.8.9;
 
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol";
-
-
 interface IUniqueNFT{
 
     function transferFrom(address _from, address _to, uint _nftId) external;
@@ -32,26 +29,22 @@ interface IUniqueNFT{
 
 contract NFTDutchAuction {
 
-    //NFT Info
-    //address nftAddress;
     uint256 nftId;
+    IUniqueNFT nftAddress;
 
     /*** state variables ***/
     uint256 private reservePrice;
     uint256 private numBlocksAuctionOpen;
     uint256 private offerPriceDecrement;
 
-    address public buyer = address(0x0);
+    address public buyer;
     address public seller;
-    address private owner;
 
     //a variable initBlock holds the block number in which the contract is instantiated by seller/owner
     // a variable initialPrice holds the initial price set by seller to accept bids
     uint256 private initBlock;
     uint256 private initialPrice;
     bool public auctionStatusOpen;
-
-    IUniqueNFT nftAddress;
 
     /**
     * @param erc721TokenAddress - price slash block by block
@@ -64,8 +57,7 @@ contract NFTDutchAuction {
         uint256 _nftTokenId, uint256 _reservePrice,
         uint256 _numBlocksAuctionOpen, uint256 _offerPriceDecrement){
 
-        owner = payable(msg.sender);
-        seller = owner;
+        seller = payable(msg.sender);
         initBlock = block.number;
         auctionStatusOpen = true;
 
@@ -107,12 +99,13 @@ contract NFTDutchAuction {
     }
 
     //finalizing the auction status
-    function finalize(address bidder) private{
+    function finalize() private{
         nftAddress.transferFrom(seller, msg.sender , nftId);
-        buyer = bidder;
+        buyer = nftAddress.ownerOf(nftId);
         auctionStatusOpen = false;
     }
 
+    //@param excessAmount - excess amount sent by buyer
     function refund(uint excessAmount) private{
         payable(msg.sender).transfer(excessAmount);
     }
@@ -124,7 +117,7 @@ contract NFTDutchAuction {
      * check if the amount sent by bidder is equal to current price
      * make a transfer to seller or revert the transaction if fails
     */
-    function bid() public payable returns(address) {
+    function bid() public payable {
 
         //checking the block limit set by the seller to see if Auction is still open
         require(isAuctionOpen(), "Auction is closed");
@@ -136,14 +129,16 @@ contract NFTDutchAuction {
         require(buyer == address(0), "Product already sold");
 
         //checking if Bidder is owner of the contract
-        require(msg.sender != owner, "Owner can't Bid");
+        require(msg.sender != seller, "Owner can't Bid");
 
         //condition to check if bidder sent the right amount that matches the current price of the item sold
         require(msg.value >= currentPrice(),"WEI is insufficient");
 
-        (bool tryToSend, ) = owner.call{ value: currentPrice() }("");
+        //transferring the amount to seller
+        (bool tryToSend, ) = seller.call{ value: currentPrice() }("");
         require(tryToSend == true, "failed to send");
 
+        // refund the excess amount if excess amount is sent
         uint256 excess = msg.value - currentPrice();
 
         if(excess > 0){
@@ -151,8 +146,8 @@ contract NFTDutchAuction {
         }
 
         //finalizing the auction
-        finalize(msg.sender);
-        return buyer;
+        finalize();
+
     }
 
 }

@@ -2,22 +2,27 @@
 
 pragma solidity ^0.8.7;
 
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract uniqueNFT is ERC721{
+contract uniqueNFT is ERC721, Ownable{
 
-    uint public totalSupply;
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+
+    uint public currentSupply;
     uint public maxSupply;
 
     constructor(uint max) ERC721("UNIQ NFT", "UN"){
         maxSupply = max;
     }
 
-    function safeMint(address to) public{
-        require(maxSupply > totalSupply,"already minted max");
-        uint tokenID = totalSupply;
-        totalSupply++;
-        _mint(to,tokenID);
+    function safeMint(address to) public onlyOwner{
+        require(maxSupply > currentSupply,"already minted max");
+        _tokenIds.increment();
+        _mint(to,_tokenIds.current());
+        currentSupply++;
     }
 
 }
