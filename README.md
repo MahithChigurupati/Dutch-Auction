@@ -14,13 +14,13 @@ This is a Repo for series of multiple versional improvements of Dutch Auction Pr
 npm i --save
 
 //compile the project
-npm hardhat compile
+npx hardhat compile
 
 //test the project
-npm hardhat test
+npx hardhat test
 
 //generating coverage reports
-npm hardhat coverage
+npx hardhat coverage
 
 ````
 
