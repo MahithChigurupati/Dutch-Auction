@@ -21,7 +21,7 @@ describe("Minting & Auctioning NFT", function () {
 
         it("Malicious Mint failure", async function () {
             const { uniqNFTFactory, otherAccount } = await loadFixture(deployOneYearLockFixture);
-            await expect(uniqNFTFactory.connect(otherAccount).safeMint(otherAccount.address)).eventually.to.rejectedWith(Error, "VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner");
+            await expect(uniqNFTFactory.connect(otherAccount).safeMint(otherAccount.address)).eventually.to.rejectedWith(Error, "VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'");
         });
 
         it("Dutch Auction Deployment", async function () {
