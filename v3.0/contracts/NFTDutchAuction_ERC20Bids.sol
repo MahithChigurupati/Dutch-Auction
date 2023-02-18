@@ -1,8 +1,14 @@
-// Create a new directory in your Github repo called v3.0 and initialize a new hardhat project.
-// Copy over any files you can reuse from the previous versions of this project into the directory for this version.
-// Create a new contract called NFTDutchAuction_ERC20Bids.sol. It should have the same functionality as NFTDutchAuction.sol but accepts only ERC20 bids instead of Ether.
-// The constructor for the NFTDutchAuction_ERC20Bids.sol should be: constructor(address erc20TokenAddress, address erc721TokenAddress, uint256 _nftTokenId, uint256 _reservePrice, uint256 _numBlocksAuctionOpen, uint256 _offerPriceDecrement)
-// Write test cases to thoroughly test your contracts. Generate a Solidity coverage report and commit it to your repository under this version’s directory.
+/**
+* @title NFTDutchAuction_ERC20Bids Smart Contract
+* @author SaiMahith Chigurupati
+* Note
+* Create a new directory in your Github repo called v3.0 and initialize a new hardhat project.
+* Copy over any files you can reuse from the previous versions of this project into the directory for this version.
+* Create a new contract called NFTDutchAuction_ERC20Bids.sol. It should have the same functionality as NFTDutchAuction.sol but accepts only ERC20 bids instead of Ether.
+* The constructor for the NFTDutchAuction_ERC20Bids.sol should be:
+* constructor(address erc20TokenAddress, address erc721TokenAddress, uint256 _nftTokenId, uint256 _reservePrice, uint256 _numBlocksAuctionOpen, uint256 _offerPriceDecrement)
+* Write test cases to thoroughly test your contracts. Generate a Solidity coverage report and commit it to your repository under this version’s directory.
+*/
 
 // SPDX-License-Identifier: MIT
 
@@ -19,8 +25,6 @@ interface IUniqueNFT{
 }
 
 interface IUniqueToken{
-
-    function transfer(address to, uint amount) external returns(bool);
 
     function transferFrom(address from, address to, uint256 amount) external returns (bool);
 
@@ -111,7 +115,10 @@ contract NFTDutchAuction_ERC20Bids{
 
     //@param excessAmount - excess amount sent by buyer
     function refund(uint excessAmount) private{
-        payable(msg.sender).transfer(excessAmount);
+
+        bool tryToRefund = tokenAddress.transferFrom(seller, msg.sender, excessAmount);
+        require(tryToRefund == true, "failed to refund");
+
     }
 
     /**
@@ -121,7 +128,7 @@ contract NFTDutchAuction_ERC20Bids{
      * check if the amount sent by bidder is equal to current price
      * make a transfer to seller or revert the transaction if fails
     */
-    function bid() public {
+    function bid(uint256 amount) public {
 
         //checking the block limit set by the seller to see if Auction is still open
         require(isAuctionOpen(), "Auction is closed");
@@ -136,23 +143,17 @@ contract NFTDutchAuction_ERC20Bids{
         require(msg.sender != seller, "Owner can't Bid");
 
         //condition to check if bidder sent the right amount that matches the current price of the item sold
-        //require(msg.value >= currentPrice(),"WEI is insufficient");
+        require(amount >= currentPrice(),"WEI is insufficient");
 
-        //require(tokenAddress.balanceOf(msg.sender) > currentPrice(), "Low Token Balance");
-
-        bool tryToSend = tokenAddress.transferFrom(msg.sender, seller, currentPrice());
+        bool tryToSend = tokenAddress.transferFrom(msg.sender, seller, amount);
         require(tryToSend == true, "failed to send");
 
-        //transferring the amount to seller
-        // (bool tryToSend, ) = seller.call{ value: currentPrice() }("");
-        // require(tryToSend == true, "failed to send");
-
         // refund the excess amount if excess amount is sent
-        // uint256 excess = msg.value - currentPrice();
+        uint256 excess = amount - currentPrice();
 
-        // if(excess > 0){
-        //     refund(excess);
-        // }
+        if(excess > 0){
+            refund(excess);
+        }
 
         //finalizing the auction
         finalize(msg.sender);
