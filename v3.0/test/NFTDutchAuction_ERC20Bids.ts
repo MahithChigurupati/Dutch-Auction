@@ -1,124 +1,177 @@
-import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+import { loadFixture, mine } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import {BigNumber} from "ethers";
 
-describe("Lock", function () {
-    // We define a fixture to reuse the same setup in every test.
-    // We use loadFixture to run this setup once, snapshot that state,
-    // and reset Hardhat Network to that snapshot in every test.
-    async function deployOneYearLockFixture() {
-        const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-        const ONE_GWEI = 1_000_000_000;
+describe("Minting & Auctioning NFT with ERC20", function () {
+    async function deployNFTDutchAuctionERC20Fixture() {
 
-        const lockedAmount = ONE_GWEI;
-        const unlockTime = (await time.latest()) + ONE_YEAR_IN_SECS;
+        const [owner, otherAccount, otherAccount2] = await ethers.getSigners();
 
-        // Contracts are deployed using the first signer/account by default
-        const [owner, otherAccount] = await ethers.getSigners();
+        const UniqNFTFactory = await ethers.getContractFactory("UniqNFT");
+        const uniqNFTFactory = await UniqNFTFactory.connect(owner).deploy(10);
 
-        const Lock = await ethers.getContractFactory("Lock");
-        const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+        await uniqNFTFactory.safeMint(owner.address);
 
-        return { lock, unlockTime, lockedAmount, owner, otherAccount };
+        const UniqTokenFactory = await ethers.getContractFactory("UniqToken");
+        const uniqTokenFactory = await UniqTokenFactory.connect(owner).deploy(10000);
+
+        await uniqTokenFactory.connect(otherAccount).buy(100,{value: 10000});
+
+        const NFTDutchAuctionFactory = await ethers.getContractFactory("NFTDutchAuction_ERC20Bids");
+        const nftDutchAuction = await NFTDutchAuctionFactory.deploy(uniqTokenFactory.address, uniqNFTFactory.address, 1, 100, 10, 10);
+
+        await uniqNFTFactory.approve(nftDutchAuction.address, 1);
+        await uniqTokenFactory.connect(otherAccount).approve(nftDutchAuction.address, BigNumber.from("100000000000000000000"));
+
+        return {uniqNFTFactory, uniqTokenFactory, nftDutchAuction, owner, otherAccount, otherAccount2};
     }
 
-    describe("Deployment", function () {
-        it("Should set the right unlockTime", async function () {
-            const { lock, unlockTime } = await loadFixture(deployOneYearLockFixture);
+    describe("UniqNFT & Dutch Auction Deployment", function () {
+        it("Safe Mint NFT", async function () {
+            const {uniqNFTFactory, owner} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
-            expect(await lock.unlockTime()).to.equal(unlockTime);
+            expect(await uniqNFTFactory.safeMint(owner.address));
+            expect(await uniqNFTFactory.balanceOf(owner.address)).to.equal(2);
+            expect(await uniqNFTFactory.ownerOf(2)).to.equal(owner.address);
         });
 
-        it("Should set the right owner", async function () {
-            const { lock, owner } = await loadFixture(deployOneYearLockFixture);
+        it("Malicious Mint failure", async function () {
+            const { uniqNFTFactory, otherAccount } = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
-            expect(await lock.owner()).to.equal(owner.address);
+            await expect(uniqNFTFactory.connect(otherAccount).safeMint(otherAccount.address)).to.be.revertedWith( "Ownable: caller is not the owner");
         });
 
-        it("Should receive and store the funds to lock", async function () {
-            const { lock, lockedAmount } = await loadFixture(
-                deployOneYearLockFixture
-            );
+        it("check NFT supply", async function () {
+            const {uniqNFTFactory, owner} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
-            expect(await ethers.provider.getBalance(lock.address)).to.equal(
-                lockedAmount
-            );
+            expect(await uniqNFTFactory.maxSupply()).to.equal(10);
+            expect(await uniqNFTFactory.currentSupply()).to.equal(1);
+
         });
 
-        it("Should fail if the unlockTime is not in the future", async function () {
-            // We don't use the fixture here because we want a different deployment
-            const latestTime = await time.latest();
-            const Lock = await ethers.getContractFactory("Lock");
-            await expect(Lock.deploy(latestTime, { value: 1 })).to.be.revertedWith(
-                "Unlock time should be in the future"
-            );
-        });
-    });
+        it("check token supply", async function () {
+            const {uniqTokenFactory, owner} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
-    describe("Withdrawals", function () {
-        describe("Validations", function () {
-            it("Should revert with the right error if called too soon", async function () {
-                const { lock } = await loadFixture(deployOneYearLockFixture);
+            expect(await uniqTokenFactory.maxSupply()).to.equal(BigNumber.from("10000000000000000000000"));
+            expect(await uniqTokenFactory.totalSupply()).to.equal(BigNumber.from("100000000000000000000"));
 
-                await expect(lock.withdraw()).to.be.revertedWith(
-                    "You can't withdraw yet"
-                );
-            });
-
-            it("Should revert with the right error if called from another account", async function () {
-                const { lock, unlockTime, otherAccount } = await loadFixture(
-                    deployOneYearLockFixture
-                );
-
-                // We can increase the time in Hardhat Network
-                await time.increaseTo(unlockTime);
-
-                // We use lock.connect() to send a transaction from another account
-                await expect(lock.connect(otherAccount).withdraw()).to.be.revertedWith(
-                    "You aren't the owner"
-                );
-            });
-
-            it("Shouldn't fail if the unlockTime has arrived and the owner calls it", async function () {
-                const { lock, unlockTime } = await loadFixture(
-                    deployOneYearLockFixture
-                );
-
-                // Transactions are sent using the first signer by default
-                await time.increaseTo(unlockTime);
-
-                await expect(lock.withdraw()).not.to.be.reverted;
-            });
         });
 
-        describe("Events", function () {
-            it("Should emit an event on withdrawals", async function () {
-                const { lock, unlockTime, lockedAmount } = await loadFixture(
-                    deployOneYearLockFixture
-                );
+        it("check token price", async function () {
+            const {uniqTokenFactory, owner} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
-                await time.increaseTo(unlockTime);
+            expect(await uniqTokenFactory.currentPrice()).to.equal(BigNumber.from("100"));
 
-                await expect(lock.withdraw())
-                    .to.emit(lock, "Withdrawal")
-                    .withArgs(lockedAmount, anyValue); // We accept any value as `when` arg
-            });
         });
 
-        describe("Transfers", function () {
-            it("Should transfer the funds to the owner", async function () {
-                const { lock, unlockTime, lockedAmount, owner } = await loadFixture(
-                    deployOneYearLockFixture
-                );
+        it("token Balance Check", async function () {
+            const {uniqTokenFactory, otherAccount} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
-                await time.increaseTo(unlockTime);
+            expect(await uniqTokenFactory.balanceOf(otherAccount.address)).to.equal(BigNumber.from("100000000000000000000"));
 
-                await expect(lock.withdraw()).to.changeEtherBalances(
-                    [owner, lock],
-                    [lockedAmount, -lockedAmount]
-                );
-            });
         });
+
+        it("token Allowance Check", async function () {
+            const {uniqTokenFactory, nftDutchAuction, otherAccount} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+
+            expect(await uniqTokenFactory.allowance(otherAccount.address,nftDutchAuction.address)).to.equal(BigNumber.from("100000000000000000000"));
+
+        });
+
+        it('Check seller is owner', async function () {
+
+            const { nftDutchAuction, owner} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+            expect(await nftDutchAuction.seller()).to.equal(owner.address);
+
+        });
+
+        it("Seller can't Bid", async function () {
+
+            const { nftDutchAuction, owner} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+            await expect(nftDutchAuction.connect(owner).bid(200)).to.be.revertedWith("Owner can't Bid");
+
+        });
+
+        it("Product is still available for bid", async function () {
+            const { nftDutchAuction} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+
+            expect(await nftDutchAuction.buyer()).to.equal(ethers.constants.AddressZero);
+
+        });
+
+        it("Auction Status is Open", async function () {
+            const { nftDutchAuction} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+
+            expect(await nftDutchAuction.auctionStatusOpen()).to.equal(true);
+
+        });
+
+
+        it("Number of rounds", async function () {
+            const { nftDutchAuction} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+            const hashOfTx = nftDutchAuction.deployTransaction.hash;
+            const initBlock = (await nftDutchAuction.provider.getTransactionReceipt(hashOfTx)).blockNumber;
+            const currentBlock = await ethers.provider.getBlockNumber();
+            expect(10).to.greaterThanOrEqual(currentBlock-initBlock);
+
+        });
+
+        it("Wei is insufficient", async function () {
+            const { nftDutchAuction, otherAccount} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+
+            expect( nftDutchAuction.connect(otherAccount).bid(10)).to.be.revertedWith("WEI is insufficient");
+
+        });
+
+
+        it("Successful Bid and balance checks", async function () {
+            const { uniqNFTFactory, uniqTokenFactory, nftDutchAuction, owner, otherAccount } = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+
+            expect(await uniqNFTFactory.balanceOf(owner.address)).to.equal(1);
+            expect(await uniqNFTFactory.balanceOf(otherAccount.address)).to.equal(0);
+
+            expect(await uniqTokenFactory.balanceOf(owner.address)).to.equal(0);
+            expect(await uniqTokenFactory.balanceOf(otherAccount.address)).to.equal(BigNumber.from("100000000000000000000"));
+
+
+            expect(await nftDutchAuction.connect(otherAccount).bid(200));
+
+            expect(await uniqNFTFactory.balanceOf(otherAccount.address)).to.equal(1);
+            expect(await uniqNFTFactory.balanceOf(owner.address)).to.equal(0);
+
+
+            expect(await nftDutchAuction.connect(owner).buyer()).to.equal(otherAccount.address);
+
+            expect(await nftDutchAuction.auctionStatusOpen()).to.equal(false)
+
+            //expect(await uniqTokenFactory.balanceOf(otherAccount.address)).to.equal(BigNumber.from("100000000000000000800")-BigNumber.from("200"));
+            expect(await uniqTokenFactory.balanceOf(owner.address)).to.equal(200);
+
+        });
+
+
+        it("You already bought this product", async function () {
+            const { nftDutchAuction, otherAccount } = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+
+            expect(await nftDutchAuction.connect(otherAccount).bid(200)).to.be.revertedWith("You already bought this product");
+
+        });
+
+        it("failure Bid as item is already sold", async function () {
+            const { nftDutchAuction, otherAccount2 } = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+
+            expect(await nftDutchAuction.connect(otherAccount2).bid(3000)).to.be.revertedWith("Product already sold");
+        });
+
+        it("Block passed - Auction closed", async function () {
+            const { nftDutchAuction, otherAccount } = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+
+            await mine(100);
+
+            expect( nftDutchAuction.connect(otherAccount).bid(10)).to.be.revertedWith("Auction is closed");
+
+        });
+
     });
 });
