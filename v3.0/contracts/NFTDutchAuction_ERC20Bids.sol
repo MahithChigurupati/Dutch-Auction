@@ -17,19 +17,16 @@ pragma solidity ^0.8.9;
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
+// Interface for Unique NFT(ERC721) contract
 interface IUniqueNFT{
-
     function transferFrom(address _from, address _to, uint _nftId) external;
-
     function ownerOf(uint id) external view returns (address owner);
 }
 
+// Inteface for Uniq Token(ERC20) contract
 interface IUniqueToken{
-
     function transferFrom(address from, address to, uint256 amount) external returns (bool);
-
     function balanceOf(address account) external view returns (uint256);
-
 }
 
 contract NFTDutchAuction_ERC20Bids{
@@ -53,8 +50,8 @@ contract NFTDutchAuction_ERC20Bids{
     bool public auctionStatusOpen;
 
     /**
-    * @param erc20TokenAddress -
-    * @param erc721TokenAddress -
+    * @param erc20TokenAddress - address of ERC20(Uniq Token) contract
+    * @param erc721TokenAddress - address of ERC721(Uniq NFT) contract
     * @param _nftTokenId - price slash block by block
     * @param _reservePrice - the base price till which seller will accept bids
     * @param _numBlocksAuctionOpen - number of blocks after which this contract will expire
@@ -68,6 +65,7 @@ contract NFTDutchAuction_ERC20Bids{
         initBlock = block.number;
         auctionStatusOpen = true;
 
+        // referencing the Parent contracts through interfaces
         nftId = _nftTokenId;
         nftAddress = IUniqueNFT(erc721TokenAddress);
         tokenAddress = IUniqueToken(erc20TokenAddress);
@@ -105,20 +103,14 @@ contract NFTDutchAuction_ERC20Bids{
         return blockDifference() <= numBlocksAuctionOpen;
     }
 
-    //finalizing the auction status
+    /**
+    * finalizing the auction status
+    * @param addy: "address of buyer to transfer NFT
+    */
     function finalize(address addy) private{
-
         nftAddress.transferFrom(seller, addy , nftId);
         buyer = nftAddress.ownerOf(nftId);
         auctionStatusOpen = false;
-    }
-
-    //@param excessAmount - excess amount sent by buyer
-    function refund(uint excessAmount) private{
-
-        bool tryToRefund = tokenAddress.transferFrom(seller, msg.sender, excessAmount);
-        require(tryToRefund == true, "failed to refund");
-
     }
 
     /**
@@ -127,6 +119,8 @@ contract NFTDutchAuction_ERC20Bids{
      * check if the Auction is still open for the current block number
      * check if the amount sent by bidder is equal to current price
      * make a transfer to seller or revert the transaction if fails
+     *
+     * @param amount : send the current price of NFT to bid
     */
     function bid(uint256 amount) public {
 
@@ -145,19 +139,12 @@ contract NFTDutchAuction_ERC20Bids{
         //condition to check if bidder sent the right amount that matches the current price of the item sold
         require(amount >= currentPrice(),"WEI is insufficient");
 
-        bool tryToSend = tokenAddress.transferFrom(msg.sender, seller, amount);
+        //try to transfer ERC20 tokens to seller/owner
+        bool tryToSend = tokenAddress.transferFrom(msg.sender, seller, currentPrice());
         require(tryToSend == true, "failed to send");
-
-        // refund the excess amount if excess amount is sent
-        uint256 excess = amount - currentPrice();
-
-        if(excess > 0){
-            refund(excess);
-        }
 
         //finalizing the auction
         finalize(msg.sender);
 
     }
-
 }

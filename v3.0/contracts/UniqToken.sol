@@ -13,14 +13,14 @@ pragma solidity ^0.8.7;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract UniqToken is Ownable, ERC20("UNIQ Coin","UNC"){
+contract UniqToken is ERC20("UNIQ Coin","UNC"){
 
     // state variables maintaining the total Supply of NFT's
     uint256 public maxSupply;
 
     // @param max: initializing with a limited total supply of Tokens
-    constructor(uint max) payable{
-        maxSupply = max * 10 ** uint(decimals());
+    constructor(uint max) {
+        maxSupply = max;
     }
 
     // @return current price of a coin or token
@@ -52,18 +52,18 @@ contract UniqToken is Ownable, ERC20("UNIQ Coin","UNC"){
         require(amount < maxSupply - totalSupply(), "Limit exceeded");
 
         // Utilizing _mint from ERC20 standard to handle mint
-        _mint(msg.sender, amount * 10 ** uint(decimals()));
+        _mint(msg.sender, amount );
     }
 
 
     // @param amountOfTokens: buying UNC tokens
     function buy(uint amountOfTokens) payable public {
 
-        //check if sufficient amount is sent
+        //check if suffiecient amount is sent
         uint256 totalPrice = invoice(amountOfTokens);
         require(msg.value >= totalPrice, "Insufficient amount");
 
-        //refund if excess amount is sent
+        //refund if excess amoun is sent
         if(msg.value > totalPrice){
             refund(msg.value - totalPrice);
         }

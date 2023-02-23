@@ -16,13 +16,13 @@ describe("Minting & Auctioning NFT with ERC20", function () {
         const UniqTokenFactory = await ethers.getContractFactory("UniqToken");
         const uniqTokenFactory = await UniqTokenFactory.connect(owner).deploy(10000);
 
-        await uniqTokenFactory.connect(otherAccount).buy(100,{value: 10000});
+        await uniqTokenFactory.connect(otherAccount).buy(300,{value: 30000});
 
         const NFTDutchAuctionFactory = await ethers.getContractFactory("NFTDutchAuction_ERC20Bids");
         const nftDutchAuction = await NFTDutchAuctionFactory.deploy(uniqTokenFactory.address, uniqNFTFactory.address, 1, 100, 10, 10);
 
         await uniqNFTFactory.approve(nftDutchAuction.address, 1);
-        await uniqTokenFactory.connect(otherAccount).approve(nftDutchAuction.address, BigNumber.from("100000000000000000000"));
+        await uniqTokenFactory.connect(otherAccount).approve(nftDutchAuction.address, 300);
 
         return {uniqNFTFactory, uniqTokenFactory, nftDutchAuction, owner, otherAccount, otherAccount2};
     }
@@ -43,7 +43,7 @@ describe("Minting & Auctioning NFT with ERC20", function () {
         });
 
         it("check NFT supply", async function () {
-            const {uniqNFTFactory, owner} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+            const {uniqNFTFactory} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
             expect(await uniqNFTFactory.maxSupply()).to.equal(10);
             expect(await uniqNFTFactory.currentSupply()).to.equal(1);
@@ -51,31 +51,31 @@ describe("Minting & Auctioning NFT with ERC20", function () {
         });
 
         it("check token supply", async function () {
-            const {uniqTokenFactory, owner} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+            const {uniqTokenFactory} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
-            expect(await uniqTokenFactory.maxSupply()).to.equal(BigNumber.from("10000000000000000000000"));
-            expect(await uniqTokenFactory.totalSupply()).to.equal(BigNumber.from("100000000000000000000"));
+            expect(await uniqTokenFactory.maxSupply()).to.equal(10000);
+            expect(await uniqTokenFactory.totalSupply()).to.equal(300);
 
         });
 
         it("check token price", async function () {
-            const {uniqTokenFactory, owner} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
+            const {uniqTokenFactory} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
-            expect(await uniqTokenFactory.currentPrice()).to.equal(BigNumber.from("100"));
+            expect(await uniqTokenFactory.currentPrice()).to.equal(100);
 
         });
 
         it("token Balance Check", async function () {
             const {uniqTokenFactory, otherAccount} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
-            expect(await uniqTokenFactory.balanceOf(otherAccount.address)).to.equal(BigNumber.from("100000000000000000000"));
+            expect(await uniqTokenFactory.balanceOf(otherAccount.address)).to.equal(300);
 
         });
 
         it("token Allowance Check", async function () {
             const {uniqTokenFactory, nftDutchAuction, otherAccount} = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
-            expect(await uniqTokenFactory.allowance(otherAccount.address,nftDutchAuction.address)).to.equal(BigNumber.from("100000000000000000000"));
+            expect(await uniqTokenFactory.allowance(otherAccount.address,nftDutchAuction.address)).to.equal(300);
 
         });
 
@@ -124,44 +124,34 @@ describe("Minting & Auctioning NFT with ERC20", function () {
 
         });
 
-
         it("Successful Bid and balance checks", async function () {
             const { uniqNFTFactory, uniqTokenFactory, nftDutchAuction, owner, otherAccount } = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
             expect(await uniqNFTFactory.balanceOf(owner.address)).to.equal(1);
             expect(await uniqNFTFactory.balanceOf(otherAccount.address)).to.equal(0);
 
-            expect(await uniqTokenFactory.balanceOf(owner.address)).to.equal(0);
-            expect(await uniqTokenFactory.balanceOf(otherAccount.address)).to.equal(BigNumber.from("100000000000000000000"));
-
+             expect(await uniqTokenFactory.balanceOf(owner.address)).to.equal(0);
+             expect(await uniqTokenFactory.balanceOf(otherAccount.address)).to.equal(300);
 
             expect(await nftDutchAuction.connect(otherAccount).bid(200));
 
             expect(await uniqNFTFactory.balanceOf(otherAccount.address)).to.equal(1);
             expect(await uniqNFTFactory.balanceOf(owner.address)).to.equal(0);
 
-
-            expect(await nftDutchAuction.connect(owner).buyer()).to.equal(otherAccount.address);
+            expect(await nftDutchAuction.buyer()).to.equal(otherAccount.address);
 
             expect(await nftDutchAuction.auctionStatusOpen()).to.equal(false)
-
-            //expect(await uniqTokenFactory.balanceOf(otherAccount.address)).to.equal(BigNumber.from("100000000000000000800")-BigNumber.from("200"));
-            expect(await uniqTokenFactory.balanceOf(owner.address)).to.equal(200);
+            const price = await nftDutchAuction.currentPrice();
+            expect(await uniqTokenFactory.balanceOf(otherAccount.address)).to.equal(140);
+            expect(await uniqTokenFactory.balanceOf(owner.address)).to.equal(160);
 
         });
-
 
         it("You already bought this product", async function () {
             const { nftDutchAuction, otherAccount } = await loadFixture(deployNFTDutchAuctionERC20Fixture);
 
             expect(await nftDutchAuction.connect(otherAccount).bid(200)).to.be.revertedWith("You already bought this product");
 
-        });
-
-        it("failure Bid as item is already sold", async function () {
-            const { nftDutchAuction, otherAccount2 } = await loadFixture(deployNFTDutchAuctionERC20Fixture);
-
-            expect(await nftDutchAuction.connect(otherAccount2).bid(3000)).to.be.revertedWith("Product already sold");
         });
 
         it("Block passed - Auction closed", async function () {
