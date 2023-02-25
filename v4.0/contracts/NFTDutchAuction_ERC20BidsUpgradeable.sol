@@ -10,6 +10,13 @@
 * Write test cases to thoroughly test your contracts. Generate a Solidity coverage report and commit it to your repository under this version’s directory.
 */
 
+/**
+* Note
+* Add an upgrade proxy to make your NFTDutchAuction_ERC20Bids.sol upgradeable. You don’t need to make the NFT or ERC20 contracts upgradeable. Just the DutchAuction contract.
+* Read the documentation on upgradeable contracts
+* Use the UUPS proxy instead of a transparent proxy: https://docs.openzeppelin.com/contracts/4.x/api/proxy
+*/
+
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.9;
@@ -30,7 +37,7 @@ interface IUniqueToken{
     function balanceOf(address account) external view returns (uint256);
 }
 
-contract NFTDutchAuction_ERC20Bids is Initializable, UUPSUpgradeable, OwnableUpgradeable{
+contract NFTDutchAuction_ERC20BidsUpgradeable is Initializable, UUPSUpgradeable, OwnableUpgradeable{
 
     uint256 nftId;
     IUniqueNFT nftAddress;
@@ -51,6 +58,7 @@ contract NFTDutchAuction_ERC20Bids is Initializable, UUPSUpgradeable, OwnableUpg
     bool public auctionStatusOpen;
 
     /**
+    * initialize function acts as constructor for upgradeable smart contracts
     * @param erc20TokenAddress - address of ERC20(Uniq Token) contract
     * @param erc721TokenAddress - address of ERC721(Uniq NFT) contract
     * @param _nftTokenId - price slash block by block
@@ -58,9 +66,9 @@ contract NFTDutchAuction_ERC20Bids is Initializable, UUPSUpgradeable, OwnableUpg
     * @param _numBlocksAuctionOpen - number of blocks after which this contract will expire
     * @param _offerPriceDecrement - price slash block by block
     */
-    constructor(address erc20TokenAddress, address erc721TokenAddress,
+    function initialize(address erc20TokenAddress, address erc721TokenAddress,
         uint256 _nftTokenId, uint256 _reservePrice,
-        uint256 _numBlocksAuctionOpen, uint256 _offerPriceDecrement){
+        uint256 _numBlocksAuctionOpen, uint256 _offerPriceDecrement) public initializer{
 
         seller = payable(msg.sender);
         initBlock = block.number;
@@ -83,6 +91,11 @@ contract NFTDutchAuction_ERC20Bids is Initializable, UUPSUpgradeable, OwnableUpg
         initialPrice = reservePrice + (numBlocksAuctionOpen * offerPriceDecrement);
 
     }
+
+    /** authorize the owner to upgrade the contract we implement
+    * address: address of new version of contract
+    */
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     // @return block.number - currentBlock function returns the current Block number used on the chain
     function currentBlock() view private returns(uint256){
