@@ -5,14 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b4265457-5974-4f77-b248-ddef678b7e93" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/v4.0/contracts/NFTDutchAuction_ERC20BidsUpgradeable.sol" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/v4.0/contracts/UniqNFT.sol" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/v4.0/contracts/UniqToken.sol" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/v4.0/test/NFTDutchAuction_ERC20BidsUpgradeable.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/v3.0/contracts/NFTDutchAuction_ERC20Bids.sol" beforeDir="false" afterPath="$PROJECT_DIR$/v3.0/contracts/NFTDutchAuction_ERC20Bids.sol" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/v3.0/hardhat.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/v3.0/hardhat.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/v3.0/test/NFTDutchAuction_ERC20Bids.ts" beforeDir="false" afterPath="$PROJECT_DIR$/v3.0/test/NFTDutchAuction_ERC20Bids.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/v4.0/test/NFTDutchAuction_ERC20BidsUpgradeable.ts" beforeDir="false" afterPath="$PROJECT_DIR$/v4.0/test/NFTDutchAuction_ERC20BidsUpgradeable.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +59,7 @@
       <workItem from="1675397691747" duration="125000" />
       <workItem from="1676703952856" duration="10340000" />
       <workItem from="1677192773750" duration="3126000" />
-      <workItem from="1677288783210" duration="6021000" />
+      <workItem from="1677288783210" duration="6722000" />
     </task>
     <servers />
   </component>

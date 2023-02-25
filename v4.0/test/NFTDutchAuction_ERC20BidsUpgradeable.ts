@@ -140,7 +140,6 @@ describe("Minting & Auctioning NFT with ERC20", function () {
             expect(await nftDutchAuction.buyer()).to.equal(otherAccount.address);
 
             expect(await nftDutchAuction.auctionStatusOpen()).to.equal(false)
-            const price = await nftDutchAuction.currentPrice();
             expect(await uniqTokenFactory.balanceOf(otherAccount.address)).to.equal(140);
             expect(await uniqTokenFactory.balanceOf(owner.address)).to.equal(160);
 
