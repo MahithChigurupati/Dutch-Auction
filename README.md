@@ -65,5 +65,12 @@ npx hardhat coverage
 ## Version 4.0
 
 - Add an upgrade proxy to make your NFTDutchAuction_ERC20Bids.sol upgradeable. You don’t need to make the NFT or ERC20 contracts upgradeable. Just the DutchAuction contract.
-- Read the documentation on upgradeable contracts
-- Use the UUPS proxy instead of a transparent proxy: https://docs.openzeppelin.com/contracts/4.x/api/proxy
+- Read the documentation on upgradeable contracts Use the UUPS proxy instead of a transparent proxy: https://docs.openzeppelin.com/contracts/4.x/api/proxy
+
+
+## Version 5.0
+
+- Read https://eips.ethereum.org/EIPS/eip-2612.
+- Read https://eips.ethereum.org/EIPS/eip-712
+- Add ERC20Permit functionality to your ERC20 implementation
+- Write test cases to cover the permit functionality in the context of submitting a bid to your NFTDutchAuction_ERC20Bids.
