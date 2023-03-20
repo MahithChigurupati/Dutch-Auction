@@ -1,0 +1,97 @@
+
+label{
+    color: white;
+    padding: 10px;
+    margin: 10px;
+
+}
+
+.how-it-works {
+    font-family: calibri;
+    color: white;
+    margin: 20px;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 10px;
+}
+
+.how-it-works h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #EE811A;
+}
+
+.how-it-works ol {
+    list-style: decimal;
+    margin-left: 40px;
+    font-size: 18px;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.how-it-works ul {
+    list-style: disc;
+    margin-left: 40px;
+}
+
+.how-it-works li {
+    margin-bottom: 10px;
+}
+
+.deployedAt{
+    color: #EE811A;
+}
+
+input{
+    padding: 10px;
+    margin: 10px;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background: #181818;
+}
+
+button{
+    border: 2px solid #EE811A;
+    background: #EE811A;
+    padding: 6px 10px;
+}
+
+.deploy-params {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.params {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.paramLabel {
+    margin-right: 10px;
+}
+
+.deploy-btn {
+    margin-top: 5px;
+}
+
+.info ul{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: #ecf0f1;
+    text-decoration: none;
+    list-style-type: none;
+}
+
+.info ul li {
+    display: inline-block;
+    margin-left: 5rem;
+}
+
+
+

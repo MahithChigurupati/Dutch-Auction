@@ -1,0 +1,45 @@
+/* Homepage Hero Section */
+header {
+    height: 100px;
+    color: whitesmoke;
+}
+
+/* Homepage Hero Section */
+section {
+    display: flex;
+    height: calc(100vh - 100px);
+    align-items: center;
+    justify-content: center;
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.hero {
+    width: 100%;
+    color: white;
+}
+
+.hero h1 {
+    font-weight: 700;
+    font-size: 64px;
+    line-height: 112.5%;
+    margin-bottom: 2rem;
+}
+
+.hero p {
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 170.5%;
+    margin-bottom: 3.65rem;
+}
+
+.hero .header-cta {
+    border: 30px solid #181818;
+    background: #EE811A;
+    padding: 8px 15px;
+}
+
+.header-cta a {
+    font-size: 18px;
+
+}
