@@ -2,10 +2,7 @@ import "./DeployContract.css";
 import React from "react";
 import {ethers} from "ethers";
 import {reactLocalStorage} from 'reactjs-localstorage';
-
 import ABI from '../../artifacts/contracts/BasicDutchAuction.sol/BasicDutchAuction.json';
-
-
 
 // @ts-ignore
 function DeployContract() {
