@@ -30,7 +30,7 @@ class NavBar extends React.Component{
                                 <li><a href="/"> Home </a> </li>
                                 <li><a href="#DeployContract"> Deploy </a> </li>
                                 <li><a href="#InteractWithContract"> Buy NFT </a> </li>
-                                <li className="nav-cta"><a href="#" onClick={this.connect}> Connect </a></li>
+                                <li className="nav-cta"><button onClick={this.connect}>Connect</button></li>
                             </ul>
                         </div>
                     </nav>
