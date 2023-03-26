@@ -91,8 +91,7 @@ class InteractWithContract extends React.Component{
 
             const biding = await basicDutchAuction.bid({value: `${bidValue}`});
             const receipt = await biding.wait();
-
-            window.alert(`You are the winner and your tx hash is ${receipt.blockHash}`);
+            window.alert(`You are the winner and your tx hash is ${receipt.transactionHash}`);
             deployed.textContent = `You are the Winner`;
 
         } catch (error: any) {
