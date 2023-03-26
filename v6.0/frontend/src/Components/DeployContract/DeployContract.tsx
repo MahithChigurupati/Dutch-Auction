@@ -21,9 +21,9 @@ class DeployContract extends React.Component {
             const decrement = decrementInput.value;
 
             const deployed = document.getElementById("deployedAt") as HTMLElement;
-            deployed.textContent = `Please wait...`;
 
             const basicDutchAuction = await BasicDutchAuction.deploy(basePrice,tenure,decrement);
+            deployed.textContent = `Please wait...`;
             await basicDutchAuction.deployed();
             const deployedAddress = basicDutchAuction.address;
 

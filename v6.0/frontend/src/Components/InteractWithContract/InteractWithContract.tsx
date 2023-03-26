@@ -16,15 +16,15 @@ class InteractWithContract extends React.Component{
         const info_status = document.getElementById("info-status") as HTMLElement;
         info_status.textContent = `Please wait...`;
 
-        const basicDutchAuction = new ethers.Contract(
-            // @ts-ignore
-            adr.value.toString(),
-            ABI.abi,
-            signer
-        );
-
-
         try{
+
+            const basicDutchAuction = new ethers.Contract(
+                // @ts-ignore
+                adr.value.toString(),
+                ABI.abi,
+                signer
+            );
+
             const status = await basicDutchAuction.auctionStatusOpen();
             const price = await basicDutchAuction.currentPrice();
             const seller = await basicDutchAuction.seller();
@@ -50,7 +50,7 @@ class InteractWithContract extends React.Component{
 
             if (statusElement !== null) {
                 statusElement.textContent = status;
-                if(status == true){
+                if(status === true){
                     info_status.textContent = `Auction is Open`;
                 }else{
                     info_status.textContent = `Auction is Closed`;

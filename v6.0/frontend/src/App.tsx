@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-import {ethers} from 'ethers';
 
 import Homepage from "./Components/HomePage/HomePage";
 import DeployContract from "./Components/DeployContract/DeployContract";

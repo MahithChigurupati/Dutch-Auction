@@ -9,8 +9,11 @@ declare global {
     }
 }
 
+// @ts-ignore
 class NavBar extends React.Component{
+
     connect = async () => {
+
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
         console.log("trying to connect");
@@ -33,8 +36,13 @@ class NavBar extends React.Component{
             const blockNum = await provider.getBlockNumber();
             block.textContent = `${blockNum}`;
         }
+
     };
 
+    componentDidMount() {
+        (window.ethereum as any).on("chainChanged", this.connect);
+        (window.ethereum as any).on("accountsChanged", this.connect);
+    }
     render(){
         return (
 
@@ -47,7 +55,7 @@ class NavBar extends React.Component{
                     <li><a href="/"> Home </a> </li>
                     <li><a href="#DeployContract"> Deploy </a> </li>
                     <li><a href="#InteractWithContract"> Buy NFT </a> </li>
-                    <li className="nav-cta"><button onClick={this.connect}>Connect</button></li>
+                    <li className="nav-cta"><button id = {"connect"} onClick={this.connect}>Connect</button></li>
                 </ul>
             </section>
         );
