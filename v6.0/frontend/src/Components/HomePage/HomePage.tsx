@@ -1,6 +1,6 @@
 import "./HomePage.css";
 import icon from "../../logo.svg";
-import StatusBar from '../StatusBar/StatusBar'
+
 import React from 'react';
 
 class Homepage extends React.Component {

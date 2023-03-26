@@ -8,12 +8,6 @@ import InteractWithContract from "./Components/InteractWithContract/InteractWith
 import NavBar from "./Components/NavBar/NavBar";
 import StatusBar from "./Components/StatusBar/StatusBar";
 
-declare global {
-  interface Window {
-    ethereum: any;
-  }
-}
-
 class App extends React.Component {
     render(){
         return (

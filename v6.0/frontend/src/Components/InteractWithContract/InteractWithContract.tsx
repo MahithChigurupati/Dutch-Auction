@@ -1,9 +1,9 @@
 import "./InteractwithContract.css";
-import React from "react";
 
+import React from "react";
 import {ethers} from "ethers";
+
 import ABI from "../../artifacts/contracts/BasicDutchAuction.sol/BasicDutchAuction.json";
-import {reactLocalStorage} from 'reactjs-localstorage';
 
 // @ts-ignore
 class InteractWithContract extends React.Component{
@@ -59,7 +59,7 @@ class InteractWithContract extends React.Component{
             }
 
             if (contractElement !== null) {
-                contractElement.textContent = reactLocalStorage.get('var');
+                contractElement.textContent = adr.value.toString();
             }
 
         }catch (error: any) {
@@ -67,14 +67,13 @@ class InteractWithContract extends React.Component{
                 'Error!' + (error && error.reason ? `\n\n${error.reason}` : `${error.message}`)
             );
             info_status.textContent = error.reason;
-
         }
     }
 
     bid = async () => {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
-        const adr:string = reactLocalStorage.get('var');
+        const adr = document.getElementById('Contract Address') as HTMLInputElement
 
         try {
 
@@ -85,7 +84,7 @@ class InteractWithContract extends React.Component{
             deployed.textContent = `Please wait... Processing transaction`;
 
             const basicDutchAuction = new ethers.Contract(
-                adr,
+                adr.value.toString(),
                 ABI.abi,
                 signer
             );

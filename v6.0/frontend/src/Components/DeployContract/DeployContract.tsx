@@ -1,7 +1,6 @@
 import "./DeployContract.css";
 import React from "react";
 import {ethers} from "ethers";
-import {reactLocalStorage} from 'reactjs-localstorage';
 import ABI from '../../artifacts/contracts/BasicDutchAuction.sol/BasicDutchAuction.json';
 
 // @ts-ignore
@@ -23,20 +22,13 @@ class DeployContract extends React.Component {
 
             const deployed = document.getElementById("deployedAt") as HTMLElement;
             deployed.textContent = `Please wait...`;
+
             const basicDutchAuction = await BasicDutchAuction.deploy(basePrice,tenure,decrement);
-
             await basicDutchAuction.deployed();
-
             const deployedAddress = basicDutchAuction.address;
-            console.log("here")
 
             window.alert(`Contract deployed to: ${deployedAddress}`);
-
-            reactLocalStorage.set('var', deployedAddress);
-            console.log("next")
-
             deployed.textContent = `Deployed at ${deployedAddress}`;
-            console.log("done")
 
         } catch (error: any) {
             window.alert(
