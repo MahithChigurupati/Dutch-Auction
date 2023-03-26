@@ -1,56 +1,42 @@
-li, a, button {
+a, button {
     font-family: 'Poppins', sans-serif;
     font-weight: 500;
     font-size: 16px;
     color: #ecf0f1;
+}
+
+a{
     text-decoration: none;
 }
 
-header {
-    height: 100px;
-    color: whitesmoke;
+a:hover, button:hover {
+    color: #2F8AE4;
+    cursor: pointer;
+    transition: .5s ease-in-out;
 }
 
-.logo h1 a {
-    font-size: 37px;
-    color: white;
-    margin: 0;
-    font-weight: 700;
-}
-
-nav {
-    padding: 2% 10%;
+.NavBar{
     display: flex;
+    height: 100px;
+    justify-content: space-between;
+    margin: 50px 50px 0px 50px;
+}
+
+.nav-items {
+    display: flex;
+    width: 400px;
     justify-content: space-between;
 }
 
-nav ul {
-    list-style-type: none;
-}
-
-nav ul li {
+li {
     display: inline-block;
-    margin-left: 2.5rem;
+    justify-content: space-between;
 }
 
-nav ul .nav-cta a {
-    border: 2px solid #EE811A;
-    background: #EE811A;
-    padding: 6px 10px;
-}
 
-nav ul .nav-cta a:hover {
-    color: #fff;
-    transition: .5s ease-in-out;
-}
 
-nav ul .nav-signout a {
-    border: 2px solid #353535;
-    background-color: #353535;
-    padding: 6px 10px;
-}
 
-nav ul li a:hover {
-    color: #2F8AE4;
-    transition: .5s ease-in-out;
-}
+
+
+
+

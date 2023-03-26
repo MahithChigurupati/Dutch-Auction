@@ -1,23 +1,41 @@
+.deploy-contract{
+    height: 800px;
+    margin: 30px 50px;
+    padding: 20px;
 
-label{
-    color: white;
-    padding: 10px;
-    margin: 10px;
+    color: whitesmoke;
 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.deployedAt{
+    height: 50px;
+    color: #EE811A;
+}
+
+.params{
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .how-it-works {
-    font-family: calibri;
-    color: white;
-    margin: 20px;
-    padding: 10px;
+    padding: 15px;
     background-color: #333;
     border-radius: 10px;
 }
 
+
+label,input{
+    padding: 10px;
+    margin: 10px;
+}
+
 .how-it-works h3 {
-    font-size: 24px;
-    margin-bottom: 20px;
+    font-size: 25px;
+    margin: 20px;
     color: #EE811A;
 }
 
@@ -38,20 +56,6 @@ label{
     margin-bottom: 10px;
 }
 
-.deployedAt{
-    color: #EE811A;
-}
-
-input{
-    padding: 10px;
-    margin: 10px;
-}
-
-body {
-    font-family: "Poppins", sans-serif;
-    background: #181818;
-}
-
 button{
     border: 2px solid #EE811A;
     background: #EE811A;
@@ -62,35 +66,6 @@ button{
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-.params {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-}
-
-.paramLabel {
-    margin-right: 10px;
-}
-
-.deploy-btn {
-    margin-top: 5px;
-}
-
-.info ul{
-    font-family: 'Poppins', sans-serif;
-    font-weight: 500;
-    font-size: 16px;
-    color: #ecf0f1;
-    text-decoration: none;
-    list-style-type: none;
-}
-
-.info ul li {
-    display: inline-block;
-    margin-left: 5rem;
 }
 
 

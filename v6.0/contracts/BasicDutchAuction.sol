@@ -70,6 +70,7 @@ contract BasicDutchAuction {
 
     // @return the price of Bid that this Dutch auction contract is accepting right now
     function currentPrice() view public returns(uint256){
+        require(isAuctionOpen(), "Auction is closed");
         return initialPrice - (blockDifference() * offerPriceDecrement);
     }
 

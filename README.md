@@ -5,8 +5,8 @@ A project to build a decentralized application for a Dutch Auction
 This is a Repo for series of multiple versional improvements of Dutch Auction Project being done as part of INFO 7500: Cryptocurrency and Smart Contract Engineering Class @Northeastern University under Prof. Suhabe Bugrara
 
 <Strong>Devoloper</Strong> - SaiMahith Chigurupati <br>
-<Strong>NUID</Strong> - 002700539
-
+<Strong>NUID</Strong> - 002700539<br>
+<Strong>Project Requirements</Strong> - <a href="https://docs.google.com/document/d/1MhU4BXbcMNCZw4iwlSfEvZFTf4sBB3_gsyrS2b04bQs/edit#heading=h.ugfhdwyp3qug">NFT Dutch Auction</a>
 ## Instructions to run the Project
 
 ````
@@ -22,7 +22,30 @@ npx hardhat test
 //generating coverage reports
 npx hardhat coverage
 
+//Running local Blockchain
+npx hardhat node
+
+// Running UI
+//cd frontend
+// npm i --save
+npm start
+
 ````
+
+## Tools Required
+- Metamask Wallet (Browser extension)<br>
+- IPFS Desktop, IPFS Browser extension<br>
+- IDE like Visual Studio Code or IntelliJ<br>
+
+## Languages Used
+- React JS for frontend
+- Solidity for Smart Contracts
+- Framework: Hardhat, Typescript, ethers.js
+- Testing: chai, mocha
+
+## Output
+<strong>- IPFS URL:</strong><br>
+<strong>- IPNS URL:</strong><br>
 
 ## Version 1.0
 
@@ -120,3 +143,28 @@ npx hardhat coverage
            - cd frontend
            - yarn install
            - yarn start
+
+
+## Version 7.0
+- Deploy your Version 6.0 dapp on Goerli, the Ethereum testnet.
+  - This step will require getting test eth from a faucet.
+    - Some faucets to try:
+      - https://goerlifaucet.com/
+  - Sometimes these faucets can be unreliable so you’ll have to keep searching online for a faucet that gives you enough eth to successfully deploy your contract.
+  - Hardhat can deploy your contracts for you: https://hardhat.org/tutorial/deploying-to-a-live-network
+- Host your UI through IPFS.
+  - You will host your UI on your own machine, and you will use IPFS to enable others to access it through an ipfs:// url.
+    - Get the CID of your build directory that contains your built UI, and prefix the CID with “ipfs://”.
+      - For example if your CID is QmRgCTtKd91QkgoTiJQky57pCRda2drKEvTyFkUznaoKm3, the URL to access the content is ipfs://QmRgCTtKd91QkgoTiJQky57pCRda2drKEvTyFkUznaoKm3
+  - Steps:
+    - Generate build files for your UI
+    - Install IPFS desktop and IPFS browser plugin.
+    - Pin your UI build files to your IPFS Desktop node.
+    - Add the IPFS url to your README.md file in your repo.
+  - Present your fully functioning app to the TA:
+    - Show that your contracts are deployed on a testnet
+    - Show that your UI accessible by anyone through IPFS url
+    - Show that users can interact with your UI through IPFS and the Metamask plugin by:
+    - deploying a new BasicDutchAuction
+    - submitting a winning bid
+- Use IPNS to generate a fixed name for your UI: https://docs.ipfs.tech/concepts/ipns/#mutability-in-ipfs

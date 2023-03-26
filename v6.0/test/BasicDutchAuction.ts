@@ -88,6 +88,7 @@ describe("BasicDutchAuction", function () {
       await mine(100);
 
       expect( basicDutchAuction.connect(otherAccount).bid({value:10})).to.be.revertedWith("Auction is closed");
+      expect(basicDutchAuction.connect(otherAccount).currentPrice()).to.be.revertedWith("Auction is closed");
 
     });
 
