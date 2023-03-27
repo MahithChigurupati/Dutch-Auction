@@ -44,8 +44,7 @@ npm start
 - Testing: chai, mocha
 
 ## Output
-<strong>- IPFS URL:</strong><br>
-<strong>- IPNS URL:</strong><br>
+<strong>- IPNS URL:</strong> ipns://k51qzi5uqu5digqty9eub7h04b1dfcqxkek2lmub757xqpqj4qhn6exbh37mdu/ <br> 
 
 ## Version 1.0
 
