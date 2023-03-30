@@ -29,12 +29,18 @@ class InteractWithContract extends React.Component{
             const price = await basicDutchAuction.currentPrice();
             const seller = await basicDutchAuction.seller();
             const buyer = await basicDutchAuction.buyer();
+            const reserve = await basicDutchAuction.reservePrice();
+            const blocks = await basicDutchAuction.numBlocksAuctionOpen();
+            const dec = await basicDutchAuction.offerPriceDecrement();
 
             const statusElement = document.getElementById('state');
             const priceElement = document.getElementById('price');
             const sellerElement = document.getElementById('seller');
             const buyerElement = document.getElementById('buyer');
             const contractElement = document.getElementById('contract');
+            const basePrice = document.getElementById('basePrice');
+            const tenure = document.getElementById('tenure');
+            const decrement = document.getElementById('decrement');
 
             if (buyerElement !== null) {
                 buyerElement.textContent = buyer;
@@ -60,6 +66,18 @@ class InteractWithContract extends React.Component{
 
             if (contractElement !== null) {
                 contractElement.textContent = adr.value.toString();
+            }
+
+            if(basePrice != null){
+                basePrice.textContent = reserve;
+            }
+
+            if(tenure != null){
+                tenure.textContent = blocks;
+            }
+
+            if(decrement != null){
+                decrement.textContent = dec;
             }
 
         }catch (error: any) {
@@ -129,6 +147,15 @@ class InteractWithContract extends React.Component{
                         <li className={"label"}>Contract</li>
                         <li id="contract"></li>
                 </ul>
+                <ul className="info">
+                    <li className={"label"}>Base Price</li>
+                    <li id="basePrice"></li>
+                    <li className={"label"}>Tenure</li>
+                    <li id="tenure"></li>
+                    <li className={"label"}>Decrement by Block</li>
+                    <li id="decrement"></li>
+                </ul>
+
                 <ul className="info">
                     <li className={"label"}>Seller</li>
                     <li id="seller"></li>

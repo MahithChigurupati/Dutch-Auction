@@ -21,9 +21,9 @@ pragma solidity ^0.8.9;
 
 contract BasicDutchAuction {
     /*** state variables ***/
-    uint256 private reservePrice;
-    uint256 private numBlocksAuctionOpen;
-    uint256 private offerPriceDecrement;
+    uint256 public reservePrice;
+    uint256 public numBlocksAuctionOpen;
+    uint256 public offerPriceDecrement;
 
     address public buyer = address(0x0);
     address public seller;
@@ -119,4 +119,3 @@ contract BasicDutchAuction {
         return buyer;
     }
 }
-
